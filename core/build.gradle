@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 
 repositories {
     mavenCentral()
+    maven {url 'https://commondatastorage.googleapis.com/maven-repository/'}
 }
 
 dependencies {
@@ -13,4 +14,83 @@ android {
     buildToolsVersion '20.0.0'
 }
 
-apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+apply plugin: 'maven'
+
+repositories {
+    maven {url 'https://commondatastorage.googleapis.com/maven-repository/'}
+}
+
+configurations {
+    deployerJars
+}
+
+dependencies {
+    deployerJars 'com.googlesource.gerrit:gs-maven-wagon:3.3.1'
+}
+
+def baseVersionName = "1.0.0"
+if (project.hasProperty("versionSuffix")) {
+    project.ext.versionSuffix = project.versionSuffix
+} else {
+    project.ext.versionSuffix = "snapshot"
+}
+if (project.ext.versionSuffix) {
+    version = "${baseVersionName}-${project.versionSuffix}"
+} else {
+    version = "${baseVersionName}"
+}
+
+archivesBaseName = "core"
+group = "com.appunite.twowayview"
+
+Properties props = new Properties()
+def credentialsProperties = file("credentials.properties")
+if (credentialsProperties.exists()) {
+        props.load(new FileInputStream(credentialsProperties))
+}
+
+uploadArchives {
+    description = "Upload archives to maven repository"
+    repositories.mavenDeployer {
+        configuration = configurations.deployerJars
+        repository(url: "gs://maven-repository") {
+            authentication(
+            userName: "${props.getProperty('mavenUser', null)}" ,
+            password: "${props.getProperty('mavenPassword', null)}")
+        }
+        pom {
+            version = project.version
+            artifactId = project.archivesBaseName
+            groupId = project.group
+            project {
+                name 'TwoWay-View-Core'
+                description 'The ultimate utility belt for Android\'s RecyclerView.'
+                url 'https://github.com/jacek-marchwicki/twoway-view'
+                inceptionYear '2014'
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                scm {
+                    url "https://github.com/jacek-marchwicki/twoway-view"
+                    connection "https://github.com/jacek-marchwicki/twoway-view.git"
+                }
+                developers {
+                    developer {
+                        name 'Lucas Rocha'
+                    }
+                    developer {
+                        name 'Jacek Marchwicki <jacek.marchwicki@gmail.com>'
+                    }
+                }
+            }
+        }
+    }
+
+}
+
