@@ -33,8 +33,8 @@ repositories {
 }
 
 dependencies {
-    compile 'org.lucasr.twowayview:core:1.0.0-SNAPSHOT@aar'
-    compile 'org.lucasr.twowayview:layouts:1.0.0-SNAPSHOT@aar'
+    compile 'com.appunite.twowayview:core:1.0.0-snapshot'
+    compile 'com.appunite.twowayview:layouts:1.0.0-snapshot'
 }
 ```
 

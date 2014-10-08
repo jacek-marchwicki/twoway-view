@@ -19,3 +19,5 @@ proguard.cfg
 build
 library/build
 sample/build
+
+credentials.properties
