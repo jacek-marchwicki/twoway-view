@@ -53,17 +53,18 @@ public class LayoutAdapter extends RecyclerView.Adapter<LayoutAdapter.SimpleView
         mContext = context;
         mItems = new ArrayList<Integer>(COUNT);
         for (int i = 0; i < COUNT; i++) {
-            addItem(i);
+            mItems.add(i, i);
         }
+        notifyDataSetChanged();
 
         mRecyclerView = recyclerView;
         mLayoutId = layoutId;
     }
 
-    public void addItem(int position) {
-        final int id = mCurrentItemId++;
-        mItems.add(position, id);
-        notifyItemInserted(position);
+    public void swapItems(List<Integer> items) {
+        mItems.clear();
+        mItems.addAll(items);
+        notifyDataSetChanged();
     }
 
     public void removeItem(int position) {
