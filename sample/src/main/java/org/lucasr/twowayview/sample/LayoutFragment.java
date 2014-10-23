@@ -19,6 +19,8 @@ package org.lucasr.twowayview.sample;
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
@@ -48,6 +50,8 @@ public class LayoutFragment extends Fragment {
     private Toast mToast;
 
     private int mLayoutId;
+    private LayoutAdapter mAdapter;
+    private Handler mHandler;
 
     public static LayoutFragment newInstance(int layoutId) {
         LayoutFragment fragment = new LayoutFragment();
@@ -125,7 +129,34 @@ public class LayoutFragment extends Fragment {
         final Drawable divider = getResources().getDrawable(R.drawable.divider);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
 
-        mRecyclerView.setAdapter(new LayoutAdapter(activity, mRecyclerView, mLayoutId));
+        mAdapter = new LayoutAdapter(activity, mRecyclerView, mLayoutId);
+        mHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what) {
+                    case 0:
+                        final int itemCount = mAdapter.getItemCount();
+                        if (itemCount > 0) {
+                            mAdapter.removeItem(itemCount - 1);
+                            delayRemoveItem();
+                        }
+                        break;
+                }
+            }
+        };
+        mRecyclerView.setAdapter(mAdapter);
+        delayRemoveItem();
+    }
+
+    private void delayRemoveItem() {
+        mHandler.sendEmptyMessageDelayed(0, 1000);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mHandler.removeMessages(0);
     }
 
     private void updateState(int scrollState) {
